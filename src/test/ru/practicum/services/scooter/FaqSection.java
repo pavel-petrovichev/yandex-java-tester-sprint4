@@ -13,13 +13,11 @@ public class FaqSection {
     private final JavascriptExecutor js;
 
     private final By faqHeader = By.className("Home_FourPart__1uthg");
-    private final By priceQuestion = By
-            .xpath(".//div[contains(text(), 'Сколько это стоит?')]");
+    private final By priceQuestion = By.xpath(".//div[contains(text(), 'Сколько это стоит?')]");
     private final By priceAnswer = By
             .xpath(".//p[contains(text(), " +
                     "'Сутки — 400 рублей. Оплата курьеру — наличными или картой.')]");
-    private final By orderTodayQuestion = By
-            .xpath(".//div[contains(text(), 'Можно ли заказать самокат прямо на сегодня?')]");
+    private final By orderTodayQuestion = By.xpath(".//div[contains(text(), 'Можно ли заказать самокат прямо на сегодня?')]");
     private final By orderTodayAnswer = By
             .xpath(".//p[contains(text(), " +
                     "'Только начиная с завтрашнего дня. Но скоро станем расторопнее.')]");
