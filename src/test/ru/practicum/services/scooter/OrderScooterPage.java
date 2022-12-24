@@ -122,7 +122,6 @@ public class OrderScooterPage {
         selectRentDuration();
         selectScooterColor();
         writeComment();
-        clickOrderButton();
     }
 
     public void waitForSecondForm() {

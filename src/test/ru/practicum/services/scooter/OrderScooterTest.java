@@ -32,9 +32,9 @@ public class OrderScooterTest {
         orderScooterPage.waitForSecondForm();
 
         orderScooterPage.fillInSecondForm();
+        orderScooterPage.clickOrderButton();
         orderScooterPage.waitForSecondFormConfirmationButton();
         orderScooterPage.clickConfirmOrderButton();
-
         orderScooterPage.waitForOrderProcessedPage();
 
         orderScooterPage.clickOrderDetailsButton();
@@ -51,9 +51,9 @@ public class OrderScooterTest {
         orderScooterPage.waitForSecondForm();
 
         orderScooterPage.fillInSecondForm();
+        orderScooterPage.clickOrderButton();
         orderScooterPage.waitForSecondFormConfirmationButton();
         orderScooterPage.clickConfirmOrderButton();
-
         orderScooterPage.waitForOrderProcessedPage();
 
         orderScooterPage.clickOrderDetailsButton();
