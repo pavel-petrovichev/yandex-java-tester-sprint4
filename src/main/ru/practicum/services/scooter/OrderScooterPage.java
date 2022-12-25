@@ -1,6 +1,5 @@
 package ru.practicum.services.scooter;
 
-import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -12,7 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static ru.practicum.services.scooter.Config.DEFAULT_WAIT_TIME_SECONDS;
@@ -22,7 +21,6 @@ public class OrderScooterPage {
 
     private final WebDriver driver;
     private final JavascriptExecutor js;
-    private final Faker faker = new Faker(new Locale("ru"));
 
     public OrderScooterPage(WebDriver driver) {
         this.driver = driver;
@@ -34,18 +32,18 @@ public class OrderScooterPage {
     private final By orderButtonBottom = By.xpath(".//div[starts-with(@class, 'Home_FinishButton')]/button[text()='Заказать']");
 
     // locators for the first form of the scooter order
-    private final By firstName = By.xpath(".//input[@placeholder='* Имя']");
-    private final By lastName = By.xpath(".//input[@placeholder='* Фамилия']");
-    private final By address = By.xpath(".//input[@placeholder='* Адрес: куда привезти заказ']");
-    private final By subwayStationInput = By.xpath(".//input[@placeholder='* Станция метро']");
+    private final By firstNameLocator = By.xpath(".//input[@placeholder='* Имя']");
+    private final By lastNameLocator = By.xpath(".//input[@placeholder='* Фамилия']");
+    private final By addressLocator = By.xpath(".//input[@placeholder='* Адрес: куда привезти заказ']");
+    private final By subwayStationInputLocator = By.xpath(".//input[@placeholder='* Станция метро']");
     private final By subwayStationList = By.xpath(".//ul[@class='select-search__options']/li");
-    private final By phone = By.xpath(".//input[@placeholder='* Телефон: на него позвонит курьер']");
+    private final By phoneLocator = By.xpath(".//input[@placeholder='* Телефон: на него позвонит курьер']");
     private final By firstFormOrderNextButton = By.xpath(".//button[text()='Далее']");
 
     // locators for the second form of the scooter order
     private final By deliveryDate = By.xpath(".//input[@placeholder='* Когда привезти самокат']");
     private final String datePickerTemplate = ".//div[@class='react-datepicker__week']/div[text()=%s]";
-    private final By rentDuration = By.xpath(".//div[text()='* Срок аренды']");
+    private final By rentDurationLocator = By.xpath(".//div[text()='* Срок аренды']");
     private final By dropdownMenuOptions = By.xpath(".//div[@class='Dropdown-menu']/div[@class='Dropdown-option']");
     private final By colorsOptions = By.xpath(".//div[text()='Цвет самоката']/../label");
     private final By commentForCourier = By.xpath(".//input[@placeholder='Комментарий для курьера']");
@@ -77,45 +75,56 @@ public class OrderScooterPage {
     }
 
     // actions for the first form of the scooter order
-    public void fillInFirstForm() {
-        fillInFirstName();
-        fillInLastName();
-        fillInAddress();
-        selectSubwayStation();
-        fillInPhone();
-    }
-
     public void waitForFirstForm() {
         waitForButtonToBeClickable(firstFormOrderNextButton);
     }
 
-    public void fillInFirstName() {
-        fillInElement(firstName, faker.name().firstName());
+    public void fillInFirstName(String firstName) {
+        fillInElement(firstNameLocator, firstName);
     }
 
-    public void fillInLastName() {
-        fillInElement(lastName, faker.name().lastName());
+    public void fillInLastName(String lastName) {
+        fillInElement(lastNameLocator, lastName);
     }
 
-    public void fillInAddress() {
-        fillInElement(address, faker.address().streetAddress());
+    public void fillInAddress(String address) {
+        fillInElement(addressLocator, address);
     }
 
-    public void selectSubwayStation() {
+    public String pickRandomStation() {
         // open stations list
-        clickElement(subwayStationInput);
+        clickElement(subwayStationInputLocator);
 
         // select random station
         List<WebElement> stationsElements = driver.findElements(subwayStationList);
-        stationsElements
+        String station = stationsElements
                 .get(ThreadLocalRandom
                         .current()
                         .nextInt(stationsElements.size()))
+                .getText();
+
+        // close stations list
+        clickElement(subwayStationInputLocator);
+
+        return station;
+    }
+
+    public void selectSubwayStation(String station) {
+        // open stations list
+        clickElement(subwayStationInputLocator);
+
+        // select station
+        driver
+                .findElements(subwayStationList)
+                .stream()
+                .filter(e -> Objects.equals(e.getText(), station))
+                .findFirst()
+                .orElseThrow()
                 .click();
     }
 
-    public void fillInPhone() {
-        fillInElement(phone, generatePhoneNumber());
+    public void fillInPhone(String phone) {
+        fillInElement(phoneLocator, phone);
     }
 
     public void clickOrderNextButton() {
@@ -123,13 +132,6 @@ public class OrderScooterPage {
     }
 
     // actions for the second form of the scooter order
-    public void fillInSecondForm() {
-        selectDeliveryDate();
-        selectRentDuration();
-        selectScooterColor();
-        writeComment();
-    }
-
     public void waitForSecondForm() {
         waitForButtonToBeClickable(secondFormOrderButton);
     }
@@ -138,45 +140,66 @@ public class OrderScooterPage {
         waitForButtonToBeClickable(secondFormConfirmOrderButton);
     }
 
-    public void selectDeliveryDate() {
-        // todo consider selecting tomorrow
-        // two options here:
-        //  tomorrow is within current month
-        //  tomorrow is next month, click 'next month' then
+    public void selectDeliveryDate(LocalDateTime localDateTime) {
+        // todo works for current month only
         driver
                 .findElement(deliveryDate)
                 .click();
-        LocalDateTime now = LocalDateTime.now();
-        int dayOfMonth = now.getDayOfMonth();
+        int dayOfMonth = localDateTime.getDayOfMonth();
         driver
                 .findElement(By.xpath(String.format(datePickerTemplate, dayOfMonth)))
                 .click();
     }
 
-    public void selectRentDuration() {
-        clickElement(rentDuration);
+    public String pickRandomRentDuration() {
+        clickElement(rentDurationLocator);
 
         List<WebElement> rentDurationOptions = driver
                 .findElements(dropdownMenuOptions);
-        rentDurationOptions
+        String duration = rentDurationOptions
                 .get(ThreadLocalRandom
                         .current()
                         .nextInt(rentDurationOptions.size()))
+                .getText();
+
+        clickElement(rentDurationLocator);
+
+        return duration;
+    }
+
+    public void selectRentDuration(String duration) {
+        clickElement(rentDurationLocator);
+        driver
+                .findElements(dropdownMenuOptions)
+                .stream()
+                .filter(e -> Objects.equals(e.getText(), duration))
+                .findFirst()
+                .orElseThrow()
                 .click();
     }
 
-    public void selectScooterColor() {
+    public String pickRandomScooterColor() {
         List<WebElement> colors = driver
                 .findElements(colorsOptions);
-        colors
+        return colors
                 .get(ThreadLocalRandom
                         .current()
                         .nextInt(colors.size()))
+                .getText();
+    }
+
+    public void selectScooterColor(String color) {
+        driver
+                .findElements(colorsOptions)
+                .stream()
+                .filter(e -> Objects.equals(e.getText(), color))
+                .findFirst()
+                .orElseThrow()
                 .click();
     }
 
-    public void writeComment() {
-        fillInElement(commentForCourier, faker.hitchhikersGuideToTheGalaxy().marvinQuote());
+    public void writeComment(String comment) {
+        fillInElement(commentForCourier, comment);
     }
 
     public void clickOrderButton() {
@@ -211,16 +234,6 @@ public class OrderScooterPage {
                 driver,
                 Duration.ofSeconds(DEFAULT_WAIT_TIME_SECONDS))
                 .until(ExpectedConditions.elementToBeClickable(locator));
-    }
-
-    // dirty hack since Faker cannot format phone numbers
-    private String generatePhoneNumber() {
-        return faker
-                .phoneNumber()
-                .phoneNumber()
-                .replace("(", "")
-                .replace(")", "")
-                .replace("-", "");
     }
 
     private void fillInElement(By locator, String text) {
