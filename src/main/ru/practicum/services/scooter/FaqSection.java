@@ -4,24 +4,20 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.practicum.services.scooter.Config.DEFAULT_WAIT_TIME_SECONDS;
 
 public class FaqSection {
 
     private final WebDriver driver;
     private final JavascriptExecutor js;
 
-    private final By faqHeader = By.className("Home_FourPart__1uthg");
-    private final By priceQuestion = By.xpath(".//div[contains(text(), 'Сколько это стоит?')]");
-    private final By priceAnswer = By
-            .xpath(".//p[contains(text(), " +
-                    "'Сутки — 400 рублей. Оплата курьеру — наличными или картой.')]");
-    private final By orderTodayQuestion = By.xpath(".//div[contains(text(), 'Можно ли заказать самокат прямо на сегодня?')]");
-    private final By orderTodayAnswer = By
-            .xpath(".//p[contains(text(), " +
-                    "'Только начиная с завтрашнего дня. Но скоро станем расторопнее.')]");
-
+    private final By faqHeader = By.xpath(".//div[text()='Вопросы о важном']");
 
     public FaqSection(WebDriver driver) {
         this.driver = driver;
@@ -29,41 +25,32 @@ public class FaqSection {
     }
 
     public void scrollToFaqSection() {
-        WebElement element = driver
-                .findElement(faqHeader);
-        js.executeScript("arguments[0].scrollIntoView();", element);
+        js.executeScript(
+                "arguments[0].scrollIntoView();",
+                driver.findElement(faqHeader));
     }
 
-    public void clickPriceQuestion() {
-        clickElement(priceQuestion);
+    public void clickQuestion(String question) {
+        By locator = By.xpath(String.format(".//div[contains(text(), '%s')]", question));
+        clickElement(locator);
     }
 
-    public void verifyPriceAnswerIsInvisible() {
-        assertThat(isElementDisplayed(priceAnswer))
-                .withFailMessage("Price answer is displayed")
+    public void verifyAnswerIsInvisible(String answer) {
+        By locator = By.xpath(String.format(".//p[contains(text(), '%s')]", answer));
+        assertThat(isElementDisplayed(locator))
+                .withFailMessage("Answer is displayed: %s", answer)
                 .isFalse();
     }
 
-    public void verifyPriceAnswerIsVisible() {
-        assertThat(isElementDisplayed(priceAnswer))
-                .withFailMessage("Price answer is not displayed")
-                .isTrue();
-    }
-
-    public void clickOrderTodayQuestion() {
-        clickElement(orderTodayQuestion);
-    }
-
-    public void verifyOrderTodayAnswerIsInvisible() {
-        assertThat(isElementDisplayed(orderTodayAnswer))
-                .withFailMessage("Today order answer is displayed")
-                .isFalse();
-    }
-
-    public void verifyOrderTodayAnswerIsVisible() {
-        assertThat(isElementDisplayed(orderTodayAnswer))
-                .withFailMessage("Today order answer is displayed")
-                .isTrue();
+    public void waitForAnswerToBeVisible(String answer) {
+        By locator = By.xpath(String.format(".//p[contains(text(), '%s')]", answer));
+        WebDriverWait webDriverWait = new WebDriverWait(
+                driver,
+                Duration.ofSeconds(DEFAULT_WAIT_TIME_SECONDS));
+        WebElement answerElement = driver
+                .findElement(locator);
+        webDriverWait
+                .until(ExpectedConditions.visibilityOf(answerElement));
     }
 
     private void clickElement(By locator) {

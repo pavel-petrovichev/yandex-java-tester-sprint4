@@ -7,7 +7,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 public class Config {
     public static final String SCOOTER_MAIN_PAGE =
             "https://qa-scooter.praktikum-services.ru/";
-    public static final int DEFAULT_WAIT_TIME_SECONDS = 5;
+    public static final int DEFAULT_WAIT_TIME_SECONDS = 10;
 
     public static WebDriver webDriver() {
         String driverProperty = System.getProperty("driver");

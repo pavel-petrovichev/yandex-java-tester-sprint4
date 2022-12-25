@@ -207,13 +207,10 @@ public class OrderScooterPage {
     }
 
     private void waitForButtonToBeClickable(By locator) {
-        WebDriverWait webDriverWait = new WebDriverWait(
+        new WebDriverWait(
                 driver,
-                Duration.ofSeconds(DEFAULT_WAIT_TIME_SECONDS));
-        WebElement orderProcessedElement = driver
-                .findElement(locator);
-        webDriverWait
-                .until(ExpectedConditions.elementToBeClickable(orderProcessedElement));
+                Duration.ofSeconds(DEFAULT_WAIT_TIME_SECONDS))
+                .until(ExpectedConditions.elementToBeClickable(locator));
     }
 
     // dirty hack since Faker cannot format phone numbers
