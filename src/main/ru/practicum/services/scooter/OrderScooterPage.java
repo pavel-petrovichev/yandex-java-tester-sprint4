@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static ru.practicum.services.scooter.Config.DEFAULT_WAIT_TIME_SECONDS;
+
 @RequiredArgsConstructor
 public class OrderScooterPage {
 
@@ -58,6 +60,10 @@ public class OrderScooterPage {
 
     public void clickOrderButtonTop() {
         clickElement(orderButtonTop);
+    }
+
+    public void waitForBottomOrderButtonToBeClickable() {
+        waitForButtonToBeClickable(orderButtonBottom);
     }
 
     public void scrollToOrderButtonBottom() {
@@ -189,7 +195,7 @@ public class OrderScooterPage {
     public void waitForOrderProcessedPage() {
         WebDriverWait webDriverWait = new WebDriverWait(
                 driver,
-                Duration.ofSeconds(3));
+                Duration.ofSeconds(DEFAULT_WAIT_TIME_SECONDS));
         WebElement orderProcessedElement = driver
                 .findElement(orderProcessed);
         webDriverWait
@@ -203,7 +209,7 @@ public class OrderScooterPage {
     private void waitForButtonToBeClickable(By locator) {
         WebDriverWait webDriverWait = new WebDriverWait(
                 driver,
-                Duration.ofSeconds(3));
+                Duration.ofSeconds(DEFAULT_WAIT_TIME_SECONDS));
         WebElement orderProcessedElement = driver
                 .findElement(locator);
         webDriverWait

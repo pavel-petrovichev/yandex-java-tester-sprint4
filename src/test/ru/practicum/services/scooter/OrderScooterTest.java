@@ -43,6 +43,7 @@ public class OrderScooterTest {
 
     @Test
     public void orderScooter__bottomButton() {
+        orderScooterPage.waitForBottomOrderButtonToBeClickable();
         orderScooterPage.scrollToOrderButtonBottom();
         orderScooterPage.clickOrderButtonBottom();
 
