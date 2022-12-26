@@ -14,7 +14,7 @@ public class OrderScooterTest {
     WebDriver driver = Config.webDriver();
     ScooterMainPage scooterMainPage = new ScooterMainPage(driver);
     OrderScooterPage orderScooterPage = new OrderScooterPage(driver);
-    private final Faker faker = new Faker(new Locale("ru"));
+    Faker faker = new Faker(new Locale("ru"));
 
     @Before
     public void before() {
@@ -81,7 +81,7 @@ public class OrderScooterTest {
     }
 
     // dirty hack since Faker cannot format phone numbers
-    public String generatePhoneNumber() {
+    private String generatePhoneNumber() {
         return faker
                 .phoneNumber()
                 .phoneNumber()
